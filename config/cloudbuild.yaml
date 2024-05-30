@@ -2,7 +2,5 @@ steps:
   - name: "python"
     entrypoint: "python"
     args: ["config/package.py"]
-artifacts:
-  objects:
-    location: gs://ranson-cloud-functions
-    paths: ["build/*"]
+  - name: "gcr.io/cloud-builders/gsutil"
+    args: ["-m", "cp", "-r", "build/*", "gs://ranson-cloud-functions"]
