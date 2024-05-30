@@ -1,0 +1,8 @@
+steps:
+  - name: "python"
+    entrypoint: "python"
+    args: ["config/package.py"]
+artifacts:
+  objects:
+    location: gs://ranson-cloud-functions
+    paths: ["builds/*"]
