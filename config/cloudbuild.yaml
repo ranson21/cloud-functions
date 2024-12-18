@@ -41,8 +41,12 @@ steps:
     waitFor: ["get-version"]
 
   - name: "python"
-    entrypoint: "python"
-    args: ["config/package.py", "--version", "$$(cat new_version.txt)"]
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        VERSION=$(cat new_version.txt)
+        python config/package.py --version "$${VERSION}"
     id: "package"
     waitFor: ["bump-version"]
 
