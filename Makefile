@@ -33,7 +33,6 @@ install-python: create-venv
 	@echo "Installing Python dependencies..."
 	cd $(PYTHON_FUNCTIONS_DIR) && \
 	. $(VENV_DIR)/bin/activate && \
-	pip install -r requirements.txt && \
 	for dir in */; do \
 		if [ -f "$$dir/requirements.txt" ]; then \
 			pip install -r "$$dir/requirements.txt"; \
