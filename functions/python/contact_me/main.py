@@ -1,29 +1,41 @@
-# main.py
 import os
 import json
 import functions_framework
 import logging
 from slack_sdk.webhook import WebhookClient
 from datetime import datetime
+from google.cloud import secretmanager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def access_secret_version(project_id, secret_id, version_id="latest"):
+    """
+    Access the secret version from Secret Manager.
+    """
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
+    response = client.access_secret_version(request={"name": name})
+    return response.payload.data.decode("UTF-8")
+
+
 @functions_framework.http
-def contact_me(request):
-    """HTTP Cloud Function that sends notifications to Slack.
+def handle_request(request):
+    """HTTP Cloud Function that handles both health checks and Slack notifications.
     Args:
         request (flask.Request): The request object.
     Returns:
         The response text, or any set of values that can be turned into a
         Response object using `make_response`
     """
+    # Add health check endpoint
+    if request.method == "GET" and request.path == "/health":
+        return ({"status": "healthy"}, 200, {"Access-Control-Allow-Origin": "*"})
+
     # Set CORS headers for the preflight request
     if request.method == "OPTIONS":
-        # Allows GET requests from any origin with the Content-Type
-        # header and caches preflight response for 3600s
         headers = {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST",
@@ -55,11 +67,10 @@ def contact_me(request):
         email = request_json["email"]
         message = request_json["message"]
 
-        # Get webhook URL from environment variable
-        webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
-        if not webhook_url:
-            logger.error("SLACK_WEBHOOK_URL environment variable not set")
-            raise ValueError("SLACK_WEBHOOK_URL environment variable not set")
+        # Get webhook URL from Secret Manager
+        project_id = os.environ.get("GCP_PROJECT")
+        webhook_url = access_secret_version(project_id, "slack_webhook_url")
+        logger.info("Retrieved webhook URL from Secret Manager")
 
         webhook = WebhookClient(webhook_url)
         logger.info("Initialized Slack webhook client")
