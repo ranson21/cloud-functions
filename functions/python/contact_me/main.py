@@ -8,6 +8,13 @@ from datetime import datetime
 
 @functions_framework.http
 def contact_me(request):
+    # Add health check endpoint
+    if request.method == "GET" and request.path == "/health":
+        return ({"status": "healthy"}, 200, {"Access-Control-Allow-Origin": "*"})
+
+
+@functions_framework.http
+def contact_me(request):
     """HTTP Cloud Function that sends notifications to Slack.
     Args:
         request (flask.Request): The request object.
