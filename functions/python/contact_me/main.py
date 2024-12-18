@@ -2,15 +2,13 @@
 import os
 import json
 import functions_framework
+import logging
 from slack_sdk.webhook import WebhookClient
 from datetime import datetime
 
-
-@functions_framework.http
-def contact_me(request):
-    # Add health check endpoint
-    if request.method == "GET" and request.path == "/health":
-        return ({"status": "healthy"}, 200, {"Access-Control-Allow-Origin": "*"})
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @functions_framework.http
@@ -38,7 +36,11 @@ def contact_me(request):
     headers = {"Access-Control-Allow-Origin": "*"}
 
     try:
+        if request.method != "POST":
+            raise ValueError(f"Unsupported method: {request.method}")
+
         request_json = request.get_json()
+        logger.info(f"Received request with payload: {request_json}")
 
         if not request_json:
             raise ValueError("No JSON payload received")
@@ -56,9 +58,11 @@ def contact_me(request):
         # Get webhook URL from environment variable
         webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
         if not webhook_url:
+            logger.error("SLACK_WEBHOOK_URL environment variable not set")
             raise ValueError("SLACK_WEBHOOK_URL environment variable not set")
 
         webhook = WebhookClient(webhook_url)
+        logger.info("Initialized Slack webhook client")
 
         # Format the message
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -93,11 +97,15 @@ def contact_me(request):
         }
 
         # Send the message
+        logger.info("Sending message to Slack")
         response = webhook.send_dict(slack_message)
 
         if response.status_code != 200:
-            raise ValueError(f"Failed to send message to Slack: {response.body}")
+            error_msg = f"Failed to send message to Slack: {response.body}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
 
+        logger.info("Successfully sent message to Slack")
         return (
             {"success": True, "message": "Notification sent to Slack"},
             200,
@@ -105,6 +113,12 @@ def contact_me(request):
         )
 
     except ValueError as e:
+        logger.error(f"ValueError: {str(e)}")
         return ({"success": False, "error": str(e)}, 400, headers)
     except Exception as e:
-        return ({"success": False, "error": "Internal server error"}, 500, headers)
+        logger.error(f"Unexpected error: {str(e)}", exc_info=True)
+        return (
+            {"success": False, "error": f"Internal server error: {str(e)}"},
+            500,
+            headers,
+        )
