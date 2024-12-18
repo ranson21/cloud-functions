@@ -8,7 +8,7 @@ steps:
         "--repo-owner",
         "${_REPO_OWNER}",
         "--repo-name",
-        "github-ops-cli",
+        "cloud-functions",
       ]
     secretEnv: ["GITHUB_TOKEN"]
     id: "get-version"
@@ -31,7 +31,7 @@ steps:
         python /usr/local/bin/cli.py \
           --action bump-version \
           --repo-owner ${_REPO_OWNER} \
-          --repo-name github-ops-cli \
+          --repo-name cloud-functions \
           --current-version "$$(cat current_version.txt)" \
           --version-type "$${VERSION_TYPE}" \
           --is-merge "${_IS_MERGE}" \
@@ -63,7 +63,7 @@ steps:
           python /usr/local/bin/cli.py \
             --action create-release \
             --repo-owner ${_REPO_OWNER} \
-            --repo-name github-ops-cli \
+            --repo-name cloud-functions \
             --current-version "$${VERSION}" \
             --is-draft \
             --skip-asset
@@ -71,7 +71,7 @@ steps:
           python /usr/local/bin/cli.py \
             --action create-release \
             --repo-owner ${_REPO_OWNER} \
-            --repo-name github-ops-cli \
+            --repo-name cloud-functions \
             --current-version "$${VERSION}" \
             --skip-asset
         fi
