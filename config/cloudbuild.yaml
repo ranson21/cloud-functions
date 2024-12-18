@@ -88,7 +88,7 @@ steps:
         "--repo-owner",
         "${_REPO_OWNER}",
         "--repo-name",
-        "github-ops-cli",
+        "cloud-functions",
         "--parent-repo",
         "${_PARENT_REPO}",
         "--submodule-path",
@@ -109,7 +109,7 @@ substitutions:
   _IS_MERGE: "false"
   _PR_NUMBER: "" # PR number for reference
   _PARENT_REPO: "portfolio" # Parent repository name
-  _SUBMODULE_PATH: "assets/scripts/github-ops-cli" # Path to submodule in parent repo
+  _SUBMODULE_PATH: "assets/scripts/cloud-functions" # Path to submodule in parent repo
 
 options:
   logging: CLOUD_LOGGING_ONLY
