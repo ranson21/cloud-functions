@@ -6,6 +6,7 @@ from slack_sdk.webhook import WebhookClient
 from datetime import datetime
 from google.cloud import secretmanager
 
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ def access_secret_version(project_id, secret_id, version_id="latest"):
 
 
 @functions_framework.http
-def handle_request(request):
+def contact_me(request):
     """HTTP Cloud Function that handles both health checks and Slack notifications.
     Args:
         request (flask.Request): The request object.
