@@ -79,6 +79,7 @@ test-node:
 # Clean target
 clean:
 	@echo "Cleaning up..."
+	rm -rf build/
 	rm -rf $(PYTHON_FUNCTIONS_DIR)/$(VENV_DIR)
 	rm -rf $(PYTHON_FUNCTIONS_DIR)/__pycache__
 	rm -rf $(PYTHON_FUNCTIONS_DIR)/.pytest_cache
